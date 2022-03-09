@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">GIthub List</string>
+    <string name="cd_error_load_data">Error Load Data</string>
 </resources>

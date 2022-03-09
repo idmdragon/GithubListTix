@@ -20,8 +20,41 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginTop="@dimen/spacing_16x"
+                android:visibility="gone"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 tools:listitem="@layout/item_user" />
+
+            <LinearLayout
+                android:id="@+id/errorLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:layout_width="@dimen/size_x250"
+                    android:layout_height="@dimen/size_x250"
+                    android:layout_gravity="center|center_vertical"
+                    android:gravity="center_horizontal"
+                    android:src="@drawable/ilu_error"
+                    android:contentDescription="@string/cd_error_load_data" />
+
+                <TextView
+                    android:id="@+id/tvErrorMessage"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center|center_vertical"
+                    android:gravity="center_horizontal"
+                    android:layout_marginHorizontal="@dimen/spacing_16x"
+                    android:textColor="@color/blue_a100"
+                    android:textSize="@dimen/text_size_16"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
 
             <ProgressBar
                 android:id="@+id/progressBar"

@@ -9,5 +9,6 @@
     <dimen name="size_40x">40dp</dimen>
     <dimen name="spacing_8x">8dp</dimen>
     <dimen name="text_size_16">16sp</dimen>
+    <dimen name="size_x250">250dp</dimen>
 
 </resources>

@@ -52,6 +52,7 @@ class ListActivity : AppCompatActivity() {
                     showProgressBar(true)
                 }
                 is Resource.Success -> {
+                    binding.errorLayout.isVisible = false
                     resource.data?.let { items ->
                         adapter.setItems(items)
                         binding.rvListUser.adapter = adapter
@@ -61,7 +62,10 @@ class ListActivity : AppCompatActivity() {
                     showProgressBar(false)
                 }
                 is Resource.Error -> {
+                    binding.errorLayout.isVisible = true
                     binding.swiperRefresh.isRefreshing = false
+                    binding.tvErrorMessage.text = resource.message.toString()
+
                     showProgressBar(false)
                     Snackbar.make(
                         binding.root,
