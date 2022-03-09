@@ -2,6 +2,7 @@ package com.idmdragon.githublist.ui.activities
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.core.view.isVisible
 import com.google.android.material.snackbar.Snackbar
@@ -19,7 +20,39 @@ class ListActivity : AppCompatActivity() {
     lateinit var factory: ViewModelFactory
     private val viewModel: ListViewModel by viewModels { factory }
     private lateinit var binding: ActivityListBinding
-    private var adapter = ListAdapter()
+    private val adapter by lazy {
+        ListAdapter().apply {
+            onUserClickListener = { username ->
+                viewModel.getDetailUser(username).observe(this@ListActivity){ resource ->
+                    when (resource) {
+                        is Resource.Loading -> {
+                            showProgressBar(true)
+                        }
+                        is Resource.Success -> {
+                            resource.data?.let { items ->
+                                val dataToast = """
+                                    Name  = ${items.username}
+                                    Email = ${items.email}
+                                    Bergabung pada = ${items.createdDate}
+                                """.trimIndent()
+                                Toast.makeText(this@ListActivity,dataToast,Toast.LENGTH_LONG).show()
+                            }
+                            showProgressBar(false)
+                        }
+                        is Resource.Error -> {
+                            showProgressBar(false)
+                            Snackbar.make(
+                                binding.root,
+                                resource.message.toString(),
+                                Snackbar.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

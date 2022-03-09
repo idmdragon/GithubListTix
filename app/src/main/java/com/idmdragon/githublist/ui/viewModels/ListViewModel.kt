@@ -7,8 +7,11 @@ import com.idmdragon.githublist.data.Resource
 import com.idmdragon.githublist.domain.model.User
 import com.idmdragon.githublist.domain.usecase.UseCase
 
-class ListViewModel (private val useCase: UseCase) : ViewModel(){
+class ListViewModel(private val useCase: UseCase) : ViewModel() {
 
-    fun getListUser() : LiveData<Resource<List<User>>> = useCase.getListUser().asLiveData()
+    fun getListUser(): LiveData<Resource<List<User>>> =
+        useCase.getListUser().asLiveData()
 
+    fun getDetailUser(username: String) : LiveData<Resource<User>> =
+        useCase.getDetailUser(username).asLiveData()
 }

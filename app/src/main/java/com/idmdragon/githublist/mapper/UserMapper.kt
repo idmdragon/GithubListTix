@@ -3,7 +3,7 @@ package com.idmdragon.githublist.mapper
 import com.idmdragon.githublist.data.response.UserResponse
 import com.idmdragon.githublist.domain.model.User
 
-fun UserResponse.toModels(): User =
+fun UserResponse.toModel(): User =
     User(
         avatarUrl = avatar_url,
         userId = id,
@@ -15,5 +15,5 @@ fun UserResponse.toModels(): User =
 
 fun List<UserResponse>.toModels(): List<User> =
     this.map {
-        it.toModels()
+        it.toModel()
     }

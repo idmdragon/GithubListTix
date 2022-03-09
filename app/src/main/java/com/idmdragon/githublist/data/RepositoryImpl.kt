@@ -5,6 +5,7 @@ import com.idmdragon.githublist.data.response.ApiResponse
 import com.idmdragon.githublist.data.response.UserResponse
 import com.idmdragon.githublist.domain.model.User
 import com.idmdragon.githublist.domain.repository.Repository
+import com.idmdragon.githublist.mapper.toModel
 import com.idmdragon.githublist.mapper.toModels
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -22,7 +23,13 @@ class RepositoryImpl @Inject constructor(private val dataSource: DataSource) : R
 
         }.asFlow()
 
-    override fun getDetailUser(username: String): Flow<Resource<User>> {
-        TODO("Not yet implemented")
-    }
+    override fun getDetailUser(username: String): Flow<Resource<User>> =
+        object : NetworkResource<User, UserResponse>() {
+            override fun convertResponseToModel(response: UserResponse): User =
+                response.toModel()
+
+            override suspend fun createCall(): Flow<ApiResponse<UserResponse>> =
+                dataSource.getDetailUser(username)
+
+        }.asFlow()
 }
