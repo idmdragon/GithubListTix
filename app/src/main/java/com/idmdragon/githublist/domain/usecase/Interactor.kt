@@ -8,11 +8,9 @@ import javax.inject.Inject
 
 class Interactor @Inject constructor(private val repository: Repository) : UseCase {
 
-    override fun getListUser(): Flow<Resource<List<User>>> {
-        TODO("Not yet implemented")
-    }
+    override fun getListUser(): Flow<Resource<List<User>>> =
+        repository.getListUser()
 
-    override fun getDetailUser(username: String): Flow<Resource<User>> {
-        TODO("Not yet implemented")
-    }
+    override fun getDetailUser(username: String): Flow<Resource<User>> =
+        repository.getDetailUser(username)
 }

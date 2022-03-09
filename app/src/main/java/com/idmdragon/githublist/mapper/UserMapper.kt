@@ -12,3 +12,8 @@ fun UserResponse.toModels(): User =
         email = email,
         createdDate = created_at
     )
+
+fun List<UserResponse>.toModels(): List<User> =
+    this.map {
+        it.toModels()
+    }
