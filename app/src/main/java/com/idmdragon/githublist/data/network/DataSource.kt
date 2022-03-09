@@ -6,9 +6,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import javax.inject.Inject
+import javax.inject.Singleton
 
-
-class DataSource(private val apiService: ApiService) {
+@Singleton
+class DataSource @Inject constructor(private val apiService: ApiService) {
 
     fun getListUser(): Flow<ApiResponse<List<UserResponse>>> =
         flow {

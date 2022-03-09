@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.idmdragon.githublist.databinding.ItemUserBinding
-import com.idmdragon.githublist.model.User
+import com.idmdragon.githublist.domain.model.User
 
 class ListAdapter : RecyclerView.Adapter<ListAdapter.ViewHolder>() {
 

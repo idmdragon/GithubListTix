@@ -2,10 +2,8 @@ package com.idmdragon.githublist.ui.activities
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.idmdragon.githublist.R
 import com.idmdragon.githublist.databinding.ActivityListBinding
 import com.idmdragon.githublist.ui.adapter.ListAdapter
-import com.idmdragon.githublist.utils.DummyData
 
 class ListActivity : AppCompatActivity() {
 
@@ -21,7 +19,7 @@ class ListActivity : AppCompatActivity() {
 
     private fun setupView() {
         binding.apply {
-            adapter.setItems(DummyData.generateList())
+            adapter.setItems(listOf())
             rvListUser.adapter = adapter
         }
     }
