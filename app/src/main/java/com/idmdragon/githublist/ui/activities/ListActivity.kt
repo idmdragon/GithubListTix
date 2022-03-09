@@ -20,57 +20,31 @@ class ListActivity : AppCompatActivity() {
     lateinit var factory: ViewModelFactory
     private val viewModel: ListViewModel by viewModels { factory }
     private lateinit var binding: ActivityListBinding
+
     private val adapter by lazy {
         ListAdapter().apply {
             onUserClickListener = { username ->
-                viewModel.getDetailUser(username).observe(this@ListActivity){ resource ->
-                    when (resource) {
-                        is Resource.Loading -> {
-                            showProgressBar(true)
-                        }
-                        is Resource.Success -> {
-                            resource.data?.let { items ->
-                                val dataToast = """
-                                    Name  = ${items.username}
-                                    Email = ${items.email}
-                                    Bergabung pada = ${items.createdDate}
-                                """.trimIndent()
-                                Toast.makeText(this@ListActivity,dataToast,Toast.LENGTH_LONG).show()
-                            }
-                            showProgressBar(false)
-                        }
-                        is Resource.Error -> {
-                            showProgressBar(false)
-                            Snackbar.make(
-                                binding.root,
-                                resource.message.toString(),
-                                Snackbar.LENGTH_SHORT
-                            ).show()
-                        }
-                    }
-                }
+                loadDetailUser(username)
             }
         }
     }
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         (application as BaseApplication).appComponent.inject(this)
         binding = ActivityListBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        setupView()
-        setupObserver()
+        loadListUser()
+        swipeRefreshLayout()
     }
 
-    private fun setupView() {
-        binding.apply {
-            adapter.setItems(listOf())
-            rvListUser.adapter = adapter
+    private fun swipeRefreshLayout(){
+        binding.swiperRefresh.setOnRefreshListener {
+            loadListUser()
         }
     }
 
-    private fun setupObserver(){
+    private fun loadListUser(){
         viewModel.getListUser().observe(this){ resource ->
             when (resource) {
                 is Resource.Loading -> {
@@ -83,6 +57,37 @@ class ListActivity : AppCompatActivity() {
                         binding.rvListUser.adapter = adapter
                     }
                     binding.rvListUser.isVisible = true
+                    binding.swiperRefresh.isRefreshing = false
+                    showProgressBar(false)
+                }
+                is Resource.Error -> {
+                    binding.swiperRefresh.isRefreshing = false
+                    showProgressBar(false)
+                    Snackbar.make(
+                        binding.root,
+                        resource.message.toString(),
+                        Snackbar.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+    }
+
+    private fun loadDetailUser(username: String){
+        viewModel.getDetailUser(username).observe(this@ListActivity){ resource ->
+            when (resource) {
+                is Resource.Loading -> {
+                    showProgressBar(true)
+                }
+                is Resource.Success -> {
+                    resource.data?.let { items ->
+                        val dataToast = """
+                                    Name  = ${items.username}
+                                    Email = ${items.email}
+                                    Bergabung pada = ${items.createdDate}
+                                """.trimIndent()
+                        Toast.makeText(this@ListActivity,dataToast,Toast.LENGTH_LONG).show()
+                    }
                     showProgressBar(false)
                 }
                 is Resource.Error -> {
