@@ -6,6 +6,7 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
+import androidx.paging.CombinedLoadStates
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
@@ -56,17 +57,57 @@ class ListActivity : AppCompatActivity() {
                 binding.rvListUser.itemAnimator = null
                 binding.rvListUser.adapter = adapter
                 binding.rvListUser.layoutManager = LinearLayoutManager(this@ListActivity)
+                adapter.addLoadStateListener { loadState ->
+                    loadState.decideOnState(
+                        showLoading = { visible ->
+                            showProgressBar(visible)
+                            binding.errorLayout.isVisible = false
+                        },
+                        showEmptyState = { visible ->
+                            binding.errorLayout.isVisible = visible
+                        },
+                        showError = { message ->
+                            binding.swiperRefresh.isRefreshing = false
+                            binding.errorLayout.isVisible = true
+                            binding.tvErrorMessage.text = message
+                        }
+                    )
+                }
                 adapter.submitData(listItem)
                 adapter.loadStateFlow.distinctUntilChanged()
                 adapter.loadStateFlow
                     .collectLatest {
                         if(it.refresh is LoadState.NotLoading){
                             binding.swiperRefresh.isRefreshing = false
+                            binding.errorLayout.isVisible = false
                             showProgressBar(false)
                         }
                     }
             }
         }
+    }
+
+    private inline fun CombinedLoadStates.decideOnState(
+        showLoading: (Boolean) -> Unit,
+        showEmptyState: (Boolean) -> Unit,
+        showError: (String) -> Unit
+    ) {
+        showLoading(refresh is LoadState.Loading)
+
+        showEmptyState(
+            source.append is LoadState.NotLoading
+                    && source.append.endOfPaginationReached
+                    && adapter.itemCount == 0
+        )
+
+        val errorState = source.append as? LoadState.Error
+            ?: source.prepend as? LoadState.Error
+            ?: source.refresh as? LoadState.Error
+            ?: append as? LoadState.Error
+            ?: prepend as? LoadState.Error
+            ?: refresh as? LoadState.Error
+
+        errorState?.let { showError(it.error.toString()) }
     }
 
     private fun loadDetailUser(username: String){
