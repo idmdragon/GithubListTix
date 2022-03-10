@@ -5,6 +5,9 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.core.view.isVisible
+import androidx.lifecycle.lifecycleScope
+import androidx.paging.LoadState
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import com.idmdragon.githublist.BaseApplication
 import com.idmdragon.githublist.data.Resource
@@ -12,6 +15,9 @@ import com.idmdragon.githublist.databinding.ActivityListBinding
 import com.idmdragon.githublist.ui.adapter.ListAdapter
 import com.idmdragon.githublist.ui.viewModels.ListViewModel
 import com.idmdragon.githublist.ui.viewModels.ViewModelFactory
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class ListActivity : AppCompatActivity() {
@@ -45,34 +51,20 @@ class ListActivity : AppCompatActivity() {
     }
 
     private fun loadListUser(){
-        viewModel.getListUser().observe(this){ resource ->
-            when (resource) {
-                is Resource.Loading -> {
-                    binding.rvListUser.isVisible = false
-                    showProgressBar(true)
-                }
-                is Resource.Success -> {
-                    binding.errorLayout.isVisible = false
-                    resource.data?.let { items ->
-                        adapter.setItems(items)
-                        binding.rvListUser.adapter = adapter
+        viewModel.getListUser().observe(this){ listItem ->
+            lifecycleScope.launch {
+                binding.rvListUser.itemAnimator = null
+                binding.rvListUser.adapter = adapter
+                binding.rvListUser.layoutManager = LinearLayoutManager(this@ListActivity)
+                adapter.submitData(listItem)
+                adapter.loadStateFlow.distinctUntilChanged()
+                adapter.loadStateFlow
+                    .collectLatest {
+                        if(it.refresh is LoadState.NotLoading){
+                            binding.swiperRefresh.isRefreshing = false
+                            showProgressBar(false)
+                        }
                     }
-                    binding.rvListUser.isVisible = true
-                    binding.swiperRefresh.isRefreshing = false
-                    showProgressBar(false)
-                }
-                is Resource.Error -> {
-                    binding.errorLayout.isVisible = true
-                    binding.swiperRefresh.isRefreshing = false
-                    binding.tvErrorMessage.text = resource.message.toString()
-
-                    showProgressBar(false)
-                    Snackbar.make(
-                        binding.root,
-                        resource.message.toString(),
-                        Snackbar.LENGTH_SHORT
-                    ).show()
-                }
             }
         }
     }

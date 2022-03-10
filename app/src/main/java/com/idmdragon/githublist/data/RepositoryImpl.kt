@@ -1,7 +1,11 @@
 package com.idmdragon.githublist.data
 
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
 import com.idmdragon.githublist.data.network.DataSource
 import com.idmdragon.githublist.data.response.ApiResponse
+import com.idmdragon.githublist.data.response.PagingDataResponse
 import com.idmdragon.githublist.data.response.UserResponse
 import com.idmdragon.githublist.domain.model.User
 import com.idmdragon.githublist.domain.repository.Repository
@@ -13,15 +17,19 @@ import javax.inject.Singleton
 
 @Singleton
 class RepositoryImpl @Inject constructor(private val dataSource: DataSource) : Repository {
-    override fun getListUser(): Flow<Resource<List<User>>> =
-        object : NetworkResource<List<User>, List<UserResponse>>() {
-            override fun convertResponseToModel(response: List<UserResponse>): List<User> =
-                response.toModels()
 
-            override suspend fun createCall(): Flow<ApiResponse<List<UserResponse>>> =
-                dataSource.getListUser()
+    override fun getListUser(): Flow<PagingData<User>> =
+        Pager(
+            PagingConfig(10, enablePlaceholders = true, initialLoadSize = 10)
+        ) {
+            object : PagingRemoteSource<User, UserResponse>() {
+                override suspend fun createCall(page: Int): PagingDataResponse<UserResponse> =
+                    dataSource.getListUser(page)
 
-        }.asFlow()
+                override fun mapToResult(response: List<UserResponse>): List<User> =
+                    response.toModels()
+            }
+        }.flow
 
     override fun getDetailUser(username: String): Flow<Resource<User>> =
         object : NetworkResource<User, UserResponse>() {
